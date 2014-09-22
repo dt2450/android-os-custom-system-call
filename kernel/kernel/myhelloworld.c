@@ -8,17 +8,15 @@ SYSCALL_DEFINE0(myhelloworld)
 	return 1;
 }
 
-SYSCALL_DEFINE3(ptree_1, unsigned long *, src, unsigned long *, dst, unsigned long, len)
+SYSCALL_DEFINE3(ptree_1, char *, src, char *, dst, int, len)
 {
-	
-	unsigned long buf;
+	char buf;
 	
 	if (copy_from_user(&buf, src, len))
 		return -EFAULT;
 	
 	if (copy_to_user(dst, &buf, len))
 		return -EFAULT;
-	
-	return len;
-	//return 2485;
+
+	return len;	
 }
