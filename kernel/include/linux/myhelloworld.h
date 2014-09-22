@@ -5,5 +5,6 @@
 #include <linux/linkage.h>
 
 _syscall0(int, myhelloworld);
+_syscall3(int, ptree_1, char *, src, char *, dst, int, len);
 
 #endif
