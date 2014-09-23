@@ -25,14 +25,15 @@ int main()
 	printf("len=%d\n", len);
 
 	struct prinfo *pp = (struct prinfo *) malloc(len);
-	pp->state = 111;
 	int nr = 1;
 
-	printf("initial buffer: %u.\n", (unsigned int)pp);
-	printf("initial pp->state: %lu.\n", pp->state);
 	int r = syscall(__NR_ptree, pp, &nr);
-	printf("returned: %d.\n", r);
-	printf("final pp->state: %lu.\n", pp->state);
 
+        printf("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
+                        pp->parent_pid, pp->pid,
+                        pp->first_child_pid,
+                        pp->next_sibling_pid);
+        printf(" state: %lu, uid: %lu, pname: %s\n", pp->state,
+                        pp->uid, pp->comm);
 	return 0;
 }
