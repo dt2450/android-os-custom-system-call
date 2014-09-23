@@ -28,10 +28,11 @@ int main()
 	pp->state = 111;
 	int nr = 1;
 
+	printf("initial buffer: %u.\n", (unsigned int)pp);
 	printf("initial pp->state: %lu.\n", pp->state);
 	int r = syscall(__NR_ptree, pp, &nr);
 	printf("returned: %d.\n", r);
 	printf("final pp->state: %lu.\n", pp->state);
-	
+
 	return 0;
 }
