@@ -35,5 +35,7 @@ int main()
                         pp->next_sibling_pid);
         printf(" state: %lu, uid: %lu, pname: %s\n", pp->state,
                         pp->uid, pp->comm);
+	printf(" Return value = %d\n", r);
+	sleep(10000);
 	return 0;
 }

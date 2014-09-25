@@ -29,37 +29,43 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	int size = 0;
 	struct prinfo *kernel_buffer = NULL;
 	struct prinfo *curr_prinfo = NULL;
-	struct task_struct *p = &init_task;
+	//struct task_struct *p = &init_task;
+	struct task_struct *p = NULL;
 	struct task_struct *temp = NULL;
 
 	if (buf == NULL || nr == NULL) {
-		printk("prinfo: buf or nr is NULL\n");
+		pr_err("prinfo: buf or nr is NULL\n");
 		return -EINVAL;
+	}
+	p = find_task_by_pid_ns(1, &init_pid_ns);
+	if (p == NULL) {
+		pr_err("prinfo: couldn't find the task struct for init process\n");
+		return -ESRCH;
 	}
 	/* TODO: Is access_ok required? */
 	if (!access_ok(VERIFY_READ, (void *)nr, sizeof(int))) {
-		printk("prinfo: nr is not a valid pointer\n");
+		pr_err("prinfo: nr is not a valid pointer\n");
 		return -EFAULT;
 	} else {
 		if (copy_from_user(&size, nr, sizeof(int))) {
-			printk("prinfo: copy_from_user failed to copy nr\n");
+			pr_err("prinfo: copy_from_user failed to copy nr\n");
 			return -EFAULT;
 		}
 	}
 	if (size < 1) {
-		printk("prinfo: no. of entries is less than 1\n");
+		pr_err("prinfo: no. of entries is less than 1\n");
 		return -EINVAL;
 	}
 	if (!access_ok(VERIFY_WRITE, (void *)buf,
 				sizeof(struct prinfo) * size)) {
-		printk("prinfo: buf is not a valid buffer\n");
+		pr_err("prinfo: buf is not a valid buffer\n");
 		return -EFAULT;
 	}
 
 	kernel_buffer = (struct prinfo *)kmalloc((sizeof(struct prinfo) *
 				size), GFP_KERNEL);
 	if (!kernel_buffer) {
-		printk("prinfo: couldn't allocate memory\n");
+		pr_err("prinfo: couldn't allocate memory\n");
 		return -ENOMEM;
 	}
 
@@ -73,13 +79,13 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		else
 			curr_prinfo->parent_pid = 0;
 		curr_prinfo->pid = p->pid;
-		temp = list_entry(&p->children, struct task_struct,
+		temp = list_first_entry(&p->children, struct task_struct,
 				children);
 		if (temp) {
 			curr_prinfo->first_child_pid = temp->pid;
 		} else
 			curr_prinfo->first_child_pid = 0;
-		temp = list_entry(&p->sibling, struct task_struct,
+		temp = list_first_entry(&p->sibling, struct task_struct,
 				sibling);
 		if (temp) {
 			curr_prinfo->next_sibling_pid = temp->pid;
@@ -99,21 +105,27 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	read_unlock(&tasklist_lock);
 
 	//for debugging
-	printk("prinfo: size = %d, buf = %x kernel_buffer = %x\n", size,
+	pr_info("prinfo: size = %d, buf = %x kernel_buffer = %x\n", size,
 			(unsigned int)buf,
 			(unsigned int)kernel_buffer);
-	printk("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
+	pr_info("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
 			kernel_buffer->parent_pid, kernel_buffer->pid,
 			kernel_buffer->first_child_pid,
 			kernel_buffer->next_sibling_pid);
-	printk(" state: %lu, uid: %lu, pname: %s\n", kernel_buffer->state,
+	pr_info(" state: %lu, uid: %lu, pname: %s\n",
+			kernel_buffer->state,
 			kernel_buffer->uid, kernel_buffer->comm);
+	pr_info(
+		 "curr_prinfo Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d\n",
+			curr_prinfo->parent_pid, curr_prinfo->pid,
+			curr_prinfo->first_child_pid,
+			curr_prinfo->next_sibling_pid);
 
 	/* TODO: handle the condition when size is much larger than the actual no. of
 	 * processes
 	 */
 	if (copy_to_user(buf, kernel_buffer, (sizeof(struct prinfo) * size))) {
-		printk("prinfo: copy_to_user failed to copy kernel_buffer\n");
+		pr_err("prinfo: copy_to_user failed to copy kernel_buffer\n");
 		kfree(kernel_buffer);
 		return -EFAULT;
 	}

@@ -1,21 +1,37 @@
-CC := arm-none-linux-gnueabi-gcc
-LD := arm-none-linux-gnueabi-gcc
-CFLAGS := -g -Wall -Werror -static
-LDFLAGS := -static
+# Set this to the name of your program
+TARGET = test_prinfo
 
-OBJECTS := prinfo.o
+# Edit this variable to point to all
+# of your sources files (make sure
+# to put a complete relative path)
+#SOURCES = mysrc1.c \
+          mysrc2.c
 
-all: prinfo
+SOURCES = test_prinfo.c
+# -----------------------------------------------
+# 
+# Don't touch things below here unless
+# you know what you're doing :-)
+# 
+OBJECTS = $(SOURCES:%.c=%.o)
+INCLUDE = -I.
+CFLAGS = -g -O2 -Wall $(INCLUDE) -static
+LDFLAGS = -static
+CC = arm-none-linux-gnueabi-gcc
+LD = arm-none-linux-gnueabi-gcc
 
+default: $(SOURCES) $(TARGET)
 
-: $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS)
+$(TARGET): $(OBJECTS)
+	@echo [Arm-LD] $@
+	@$(LD) $(LDFLAGS) $(OBJECTS) -o $@
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $^
+%.c.o: %.c
+	@echo [Arm-CC] $<...
+	@$(CC) -c $(CFLAGS) $< -o $@
 
-clean:
-	rm -f prinfo
-	rm -f prinfo.o
+clean: .PHONY
+	@echo [CLEAN]
+	@rm -f $(OBJECTS) $(TARGET)
 
-.PHONY: clean
+.PHONY:
