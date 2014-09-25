@@ -9,23 +9,6 @@
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 {
-	/*struct prinfo temp;
-	int len = (int) sizeof(struct prinfo);
-
-	printk("prinfo: len=%d\n", len);
-
-	if (copy_from_user(&temp, buf, len))
-                return -EFAULT;
-	
-	printk("prinfo: initial temp.state=%lu\n", temp.state);
-	temp.state = 666;
-	if (copy_to_user(buf, &temp, len))
-                return -EFAULT;
-	
-	printk("prinfo: final temp.state=%lu\n", temp.state);
-	
-	return 2485;
-	*/
 	int size = 0;
 	struct prinfo *kernel_buffer = NULL;
 	struct prinfo *curr_prinfo = NULL;
@@ -82,8 +65,8 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		/* if the task_struct is for a thread, ignore it */
 		if (!thread_group_leader(p))
 			continue;
-		if (p->parent)
-			curr_prinfo->parent_pid = p->parent->pid;
+		if (p->real_parent)
+			curr_prinfo->parent_pid = p->real_parent->pid;
 		else
 			curr_prinfo->parent_pid = 0;
 		curr_prinfo->pid = p->pid;
@@ -104,16 +87,25 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		}
 		if (!list_empty(&p->sibling)) {
 			temp = list_first_entry(&p->sibling, struct task_struct,
-					sibling);
-			if (temp) {
-				printk("Came here 4 temp->pid=%d\n", temp->pid);
-				curr_prinfo->next_sibling_pid = temp->pid;
+					children);
+			if (temp && temp !=
+					find_task_by_pid_ns(p->real_parent->pid,
+						&init_pid_ns)) {
+				temp = list_first_entry(&p->sibling, struct task_struct,
+						sibling);
+				if (temp) {
+					printk("Came here 4 temp->pid=%d\n", temp->pid);
+					curr_prinfo->next_sibling_pid = temp->pid;
+				} else {
+					printk("Came here 5\n");
+					curr_prinfo->next_sibling_pid = 0;
+				}
 			} else {
-				printk("Came here 5\n");
+				printk("Came here 6\n");
 				curr_prinfo->next_sibling_pid = 0;
 			}
 		} else {
-			printk("Came here 6\n");
+			printk("Came here 7\n");
 			curr_prinfo->next_sibling_pid = 0;
 		}
 		curr_prinfo->state = p->state;
