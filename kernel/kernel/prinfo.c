@@ -29,16 +29,20 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	int size = 0;
 	struct prinfo *kernel_buffer = NULL;
 	struct prinfo *curr_prinfo = NULL;
-	//struct task_struct *p = &init_task;
-	struct task_struct *p = NULL;
+	//init_task is pointing to swapper not init
+	struct task_struct *p = &init_task;
+	//struct task_struct *p = NULL;
+	//for debugging
+	int i = 0;
+	struct task_struct *tp[4] = {&init_task, NULL, current, 0};
 	struct task_struct *temp = NULL;
 
 	if (buf == NULL || nr == NULL) {
 		pr_err("prinfo: buf or nr is NULL\n");
 		return -EINVAL;
 	}
-	p = find_task_by_pid_ns(1, &init_pid_ns);
-	if (p == NULL) {
+	tp[1] = find_task_by_pid_ns(1, &init_pid_ns);
+	if (tp[1] == NULL) {
 		pr_err("prinfo: couldn't find the task struct for init process\n");
 		return -ESRCH;
 	}
@@ -72,25 +76,46 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	curr_prinfo = kernel_buffer;
 
 	read_lock(&tasklist_lock);
-	/* perform the DFS search in this block of code */
+	/* TODO: perform the DFS search in this block of code */
 	do {
-		if (p->real_parent)
-			curr_prinfo->parent_pid = p->real_parent->pid;
+		p = tp[i];
+		/* if the task_struct is for a thread, ignore it */
+		if (p->pid != p->tgid)
+			continue;
+		if (p->parent)
+			curr_prinfo->parent_pid = p->parent->pid;
 		else
 			curr_prinfo->parent_pid = 0;
 		curr_prinfo->pid = p->pid;
-		temp = list_first_entry(&p->children, struct task_struct,
-				children);
-		if (temp) {
-			curr_prinfo->first_child_pid = temp->pid;
-		} else
+
+		if (!list_empty(&p->children)) {
+			temp = list_first_entry(&p->children,
+					struct task_struct, sibling);
+			if (temp && (temp->pid != p->pid)) {
+				printk("Came here 1 temp->pid=%d\n", temp->pid);
+				curr_prinfo->first_child_pid = temp->pid;
+			} else {
+				printk("Came here 2\n");
+				curr_prinfo->first_child_pid = 0;
+			}
+		} else {
+			printk("Came here 3\n");
 			curr_prinfo->first_child_pid = 0;
-		temp = list_first_entry(&p->sibling, struct task_struct,
-				sibling);
-		if (temp) {
-			curr_prinfo->next_sibling_pid = temp->pid;
-		} else
+		}
+		if (!list_empty(&p->sibling)) {
+			temp = list_first_entry(&p->sibling, struct task_struct,
+					sibling);
+			if (temp) {
+				printk("Came here 4 temp->pid=%d\n", temp->pid);
+				curr_prinfo->next_sibling_pid = temp->pid;
+			} else {
+				printk("Came here 5\n");
+				curr_prinfo->next_sibling_pid = 0;
+			}
+		} else {
+			printk("Came here 6\n");
 			curr_prinfo->next_sibling_pid = 0;
+		}
 		curr_prinfo->state = p->state;
 		if (p->cred) {
 			curr_prinfo->uid = p->cred->uid;
@@ -101,8 +126,6 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		 */
 		strncpy(curr_prinfo->comm, p->comm, TASK_COMM_LEN);
 		curr_prinfo->comm[TASK_COMM_LEN] = '\0';
-	} while (0 /* TODO: next_node_in_dfs */);
-	read_unlock(&tasklist_lock);
 
 	//for debugging
 	pr_info("prinfo: size = %d, buf = %x kernel_buffer = %x\n", size,
@@ -115,11 +138,14 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	pr_info(" state: %lu, uid: %lu, pname: %s\n",
 			kernel_buffer->state,
 			kernel_buffer->uid, kernel_buffer->comm);
-	pr_info(
+	/*pr_info(
 		 "curr_prinfo Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d\n",
 			curr_prinfo->parent_pid, curr_prinfo->pid,
 			curr_prinfo->first_child_pid,
 			curr_prinfo->next_sibling_pid);
+	*/
+	} while (tp[++i] != 0 /* TODO: next_node_in_dfs */);
+	read_unlock(&tasklist_lock);
 
 	/* TODO: handle the condition when size is much larger than the actual no. of
 	 * processes
