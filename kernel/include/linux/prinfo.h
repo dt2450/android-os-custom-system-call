@@ -4,6 +4,8 @@
 #include <linux/unistd.h>
 #include <linux/linkage.h>
 
+extern int pid_max;
+
 struct prinfo {
 	pid_t parent_pid;		/* process id of parent */
 	pid_t pid;			/* process id */

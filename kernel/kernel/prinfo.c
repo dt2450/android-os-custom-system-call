@@ -88,9 +88,12 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		if (!list_empty(&p->sibling)) {
 			temp = list_first_entry(&p->sibling, struct task_struct,
 					children);
-			if (temp && temp !=
-					find_task_by_pid_ns(p->real_parent->pid,
-						&init_pid_ns)) {
+			struct task_struct *parent_ts =
+				pid_task(find_get_pid(p->real_parent->pid),
+						PIDTYPE_PID);
+			if (temp && temp != parent_ts) {
+					//find_task_by_pid_ns(p->real_parent->pid,
+					//	&init_pid_ns)) {
 				temp = list_first_entry(&p->sibling, struct task_struct,
 						sibling);
 				if (temp) {
@@ -130,6 +133,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	pr_info(" state: %lu, uid: %lu, pname: %s\n",
 			kernel_buffer->state,
 			kernel_buffer->uid, kernel_buffer->comm);
+	pr_info(" MAX PROCESSES = %d\n", pid_max);
 	/*pr_info(
 		 "curr_prinfo Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d\n",
 			curr_prinfo->parent_pid, curr_prinfo->pid,
