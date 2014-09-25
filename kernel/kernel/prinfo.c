@@ -80,7 +80,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	do {
 		p = tp[i];
 		/* if the task_struct is for a thread, ignore it */
-		if (p->pid != p->tgid)
+		if (!thread_group_leader(p))
 			continue;
 		if (p->parent)
 			curr_prinfo->parent_pid = p->parent->pid;
