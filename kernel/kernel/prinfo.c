@@ -90,7 +90,7 @@ void process_task(struct prinfo *output_struct,
 		out_prinfo->first_child_pid = 0;
 	}
 	if (!list_empty(&p->sibling)) {
-		temp = list_first_entry(&p->sibling, struct task_struct,
+		temp = list_entry(p->sibling.prev, struct task_struct,
 				children);
 		parent_ts =
 			pid_task(find_get_pid(p->real_parent->pid),
@@ -105,7 +105,7 @@ void process_task(struct prinfo *output_struct,
 			/* take the oldest sibling which 
 			 * will be the first node in the list
 			 */
-			temp = list_first_entry(&p->sibling, struct task_struct,
+			temp = list_entry(p->sibling.prev, struct task_struct,
 					sibling);
 			if (temp) {
 				printk("Came here 4 temp->pid=%d\n", temp->pid);
