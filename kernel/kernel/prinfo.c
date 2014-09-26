@@ -71,7 +71,10 @@ void process_task(struct prinfo *output_struct,
 	out_prinfo->pid = p->pid;
 
 	if (!list_empty(&p->children)) {
-		temp = list_first_entry(&p->children,
+		/* take the most recent child which will be at the
+		 * tail of the list
+		 */
+		temp = list_entry(p->children.prev,
 				struct task_struct, sibling);
 		if (temp && (temp->pid != p->pid)) {
 			printk("Came here 1 temp->pid=%d\n", temp->pid);
@@ -90,9 +93,16 @@ void process_task(struct prinfo *output_struct,
 		parent_ts =
 			pid_task(find_get_pid(p->real_parent->pid),
 					PIDTYPE_PID);
-		if (temp && temp != parent_ts) {
 			//find_task_by_pid_ns(p->real_parent->pid,
 			//	&init_pid_ns))
+		if (temp && temp != parent_ts) {
+			/* list is not empty and next node doesn't point
+			 * to the children node of parent. 
+			 * i.e there IS a sibling
+			 */
+			/* take the oldest sibling which 
+			 * will be the first node in the list
+			 */
 			temp = list_first_entry(&p->sibling, struct task_struct,
 					sibling);
 			if (temp) {
