@@ -34,7 +34,7 @@ SYSCALL_DEFINE3(ptree_1, char *, src, char *, dst, int, len)
 	if (copy_to_user(dst, &buf, len))
 		return -EFAULT;
 
-
+	s_init(10);
 	n1 = current;
 	n2 = (struct task_struct *) kmalloc(sizeof(struct task_struct), GFP_KERNEL);
 	n2->pid = 666;
@@ -47,10 +47,8 @@ SYSCALL_DEFINE3(ptree_1, char *, src, char *, dst, int, len)
 	
 	pop(1);
 	s_push(n3);
+	s_pop_all();
 	pop(2);
-	pop(3);
-	pop(4);
-	pop(5);
 
 	return len;	
 }
