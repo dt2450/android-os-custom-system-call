@@ -6,9 +6,10 @@
 #include <linux/string.h>
 
 #include <linux/prinfo.h>
+#include <linux/prinfo_stack.h>
 
 /* dummy functions */
-
+/*
 static int s_count = 0;
 
 
@@ -51,6 +52,7 @@ void free_stack_dummy(void)
 {
 	return;
 }
+*/
 
 //actual functions
 void process_task(struct prinfo *output_struct,
@@ -161,6 +163,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	//for debugging
 	int prinfo_count = 0;
 	int process_count = 0;
+	int ret_val = -1;
 
 	if (buf == NULL || nr == NULL) {
 		pr_err("ptree: buf or nr is NULL\n");
@@ -204,25 +207,33 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	pr_info("ptree: size = %d, buf = %x kernel_buffer = %x\n", size,
 			(unsigned int)buf,
 			(unsigned int)kernel_buffer);
-	read_lock(&tasklist_lock);
-	/* start with an empty stack */
-	if(!is_stack_empty_dummy()) {
-		free_stack_dummy();
+	/* initialize the stack with max no. of processes
+	 * that can be on the system
+	 */
+	ret_val = s_init(pid_max+1);
+	if(ret_val) {
 		pr_info("ptree: emptying expected empty stack. maybe an error\n");
-	}
-	/* start with swapper process which is the first process in Linux */
-	if(!s_push_dummy(&init_task)) {
-		pr_err("ptree: error in pushing to stack\n");
 		kfree(kernel_buffer);
-		return -EFAULT;
+		return ret_val;
+	}
+	read_lock(&tasklist_lock);
+	/* start with swapper process which is the first process in Linux */
+	ret_val = s_push(&init_task);
+	if(ret_val) {
+		pr_err("ptree: error in pushing to stack\n");
+		read_unlock(&tasklist_lock);
+		s_pop_all();
+		kfree(kernel_buffer);
+		return ret_val;
 	}
 	/* perform the DFS search in this loop */
-	while(!is_stack_empty_dummy()) {
+	while(!is_stack_empty()) {
 		pr_info("Coming here\n");
-		ts_ptr = s_pop_dummy();
+		ts_ptr = s_pop();
 		if(ts_ptr == NULL) {
 			pr_err("ptree: error in popping from stack\n");
-			free_stack_dummy();
+			read_unlock(&tasklist_lock);
+			s_pop_all();
 			kfree(kernel_buffer);
 			return -EFAULT;
 		}
@@ -242,15 +253,18 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			if(ts_child == NULL) {
 				pr_err("ptree: error in traversing siblings");
 				pr_err(" of process pid: %d\n", ts_ptr->pid);
-				free_stack_dummy();
+				read_unlock(&tasklist_lock);
+				s_pop_all();
 				kfree(kernel_buffer);
 				return -EFAULT;
 			}
-			if(!s_push_dummy(ts_child)) {
+			ret_val = s_push(ts_child);
+			if(ret_val) {
 				pr_err("ptree: error in pushing to stack\n");
-				free_stack_dummy();
+				read_unlock(&tasklist_lock);
+				s_pop_all();
 				kfree(kernel_buffer);
-				return -EFAULT;
+				return ret_val;
 			}
 
 		}
@@ -276,4 +290,3 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	kfree(kernel_buffer);
 	return process_count;
 }
-

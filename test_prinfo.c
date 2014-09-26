@@ -27,6 +27,7 @@ int main()
 	int nr = 3;
 	struct prinfo *pp = (struct prinfo *) malloc(len*nr);
 
+#if 0
 	pid_t pid1 = fork();
 	pid_t pid2 = fork();
 	if(pid1 > 0) {
@@ -79,6 +80,20 @@ int main()
 		sleep(1000);
 		return 0;
 	}
-	sleep(1000);
+#endif
+	int r = syscall(__NR_ptree, pp, &nr);
+	int index = nr;
+	printf(" Return value = %d\n", r);
+	while (index > 0) {
+		printf("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
+				pp->parent_pid, pp->pid,
+				pp->first_child_pid,
+				pp->next_sibling_pid);
+		printf(" state: %lu, uid: %lu, pname: %s\n", pp->state,
+				pp->uid, pp->comm);
+		pp++;
+		index--;
+	}
+	//sleep(1000);
 	return 0;
 }
