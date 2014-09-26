@@ -57,6 +57,7 @@ struct task_struct *s_pop(void)
 
 	head_ptr = (node->list).prev;
 	list_del(&node->list);
+	kfree(node);
 	s_count--;
 	printk("Successfully popped, pid: %d, Final count is %d\n", task->pid, s_count);
 
