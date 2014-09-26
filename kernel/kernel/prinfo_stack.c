@@ -3,7 +3,6 @@
 #include <linux/slab.h>
 
 static int s_count = 0;
-static struct stack_node *node = NULL;
 struct list_head head;
 struct list_head *head_ptr = NULL;
 
@@ -20,6 +19,7 @@ int s_init(void)
 
 int s_push(struct task_struct *task)
 {
+	struct stack_node *node = NULL;
 	printk("\nIn s_push:\n");
         if (task == NULL)
                 return -1;
@@ -40,7 +40,8 @@ int s_push(struct task_struct *task)
 
 struct task_struct *s_pop(void)
 {
-        struct task_struct *task;
+	struct stack_node *node = NULL;
+	struct task_struct *task_ptr = NULL;
         printk("\nIn s_pop:\n");
         if (s_count == 0) {
                 printk("Current count is %d\n", s_count);
@@ -52,16 +53,15 @@ struct task_struct *s_pop(void)
 
 	printk("Current count is %d\n", s_count);
         node = list_entry(head_ptr, struct stack_node, list);
-	task = (struct task_struct *) kmalloc(sizeof(struct task_struct), GFP_KERNEL);
-	task->pid = node->task_ptr->pid;	
+	task_ptr = node->task_ptr;
 
 	head_ptr = (node->list).prev;
 	list_del(&node->list);
 	kfree(node);
 	s_count--;
-	printk("Successfully popped, pid: %d, Final count is %d\n", task->pid, s_count);
+	printk("Successfully popped, pid: %d, Final count is %d\n", task_ptr->pid, s_count);
 
-	return task;
+	return task_ptr;
 }
 
 int is_stack_empty(void)
