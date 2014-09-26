@@ -29,13 +29,17 @@ int main()
 
 	int r = syscall(__NR_ptree, pp, &nr);
 
-        printf("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
-                        pp->parent_pid, pp->pid,
-                        pp->first_child_pid,
-                        pp->next_sibling_pid);
-        printf(" state: %lu, uid: %lu, pname: %s\n", pp->state,
-                        pp->uid, pp->comm);
 	printf(" Return value = %d\n", r);
-	sleep(10000);
+        while (r > 0) {
+		printf("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
+				pp->parent_pid, pp->pid,
+				pp->first_child_pid,
+				pp->next_sibling_pid);
+		printf(" state: %lu, uid: %lu, pname: %s\n", pp->state,
+				pp->uid, pp->comm);
+		pp++;
+		r--;
+	}
+	sleep(60);
 	return 0;
 }
