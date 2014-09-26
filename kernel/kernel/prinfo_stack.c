@@ -14,3 +14,8 @@ struct task_struct *s_pop(void)
 {
 	return NULL;
 }
+
+int is_stack_empty(void)
+{
+	return (s_count == 0);
+}
