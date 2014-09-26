@@ -12,13 +12,13 @@
 static int s_count = 0;
 
 
-int s_push(struct task_struct *task)
+int s_push_dummy(struct task_struct *task)
 {
 	s_count++;
 	return 1;
 }
 
-struct task_struct *s_pop(void)
+struct task_struct *s_pop_dummy(void)
 {
 	struct task_struct *tp[3] = {&init_task, NULL, current};
 	static int index = 0;
@@ -36,7 +36,7 @@ struct task_struct *s_pop(void)
 	return tp[index++];
 }
 
-int is_stack_empty(void)
+int is_stack_empty_dummy(void)
 {
 	static int test = 0;
 	if (test >= 4) {
@@ -47,7 +47,7 @@ int is_stack_empty(void)
 	return false;
 }
 
-void free_stack(void)
+void free_stack_dummy(void)
 {
 	return;
 }
@@ -196,23 +196,23 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			(unsigned int)kernel_buffer);
 	read_lock(&tasklist_lock);
 	/* start with an empty stack */
-	if(!is_stack_empty()) {
-		free_stack();
+	if(!is_stack_empty_dummy()) {
+		free_stack_dummy();
 		pr_info("ptree: emptying expected empty stack. maybe an error\n");
 	}
 	/* start with swapper process which is the first process in Linux */
-	if(!s_push(&init_task)) {
+	if(!s_push_dummy(&init_task)) {
 		pr_err("ptree: error in pushing to stack\n");
 		kfree(kernel_buffer);
 		return -EFAULT;
 	}
 	/* perform the DFS search in this loop */
-	while(!is_stack_empty()) {
+	while(!is_stack_empty_dummy()) {
 		pr_info("Coming here\n");
-		ts_ptr = s_pop();
+		ts_ptr = s_pop_dummy();
 		if(ts_ptr == NULL) {
 			pr_err("ptree: error in popping from stack\n");
-			free_stack();
+			free_stack_dummy();
 			kfree(kernel_buffer);
 			return -EFAULT;
 		}
@@ -232,13 +232,13 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			if(ts_child == NULL) {
 				pr_err("ptree: error in traversing siblings");
 				pr_err(" of process pid: %d\n", ts_ptr->pid);
-				free_stack();
+				free_stack_dummy();
 				kfree(kernel_buffer);
 				return -EFAULT;
 			}
-			if(!s_push(ts_child)) {
+			if(!s_push_dummy(ts_child)) {
 				pr_err("ptree: error in pushing to stack\n");
-				free_stack();
+				free_stack_dummy();
 				kfree(kernel_buffer);
 				return -EFAULT;
 			}
