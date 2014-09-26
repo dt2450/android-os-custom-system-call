@@ -24,8 +24,8 @@ int main()
 	int len = (int) sizeof(struct prinfo);
 	printf("len=%d\n", len);
 
-	struct prinfo *pp = (struct prinfo *) malloc(len);
-	int nr = 1;
+	int nr = 3;
+	struct prinfo *pp = (struct prinfo *) malloc(len*nr);
 
 	int r = syscall(__NR_ptree, pp, &nr);
 
