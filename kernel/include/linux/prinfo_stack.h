@@ -17,5 +17,5 @@ struct stack_node
 int s_push(struct task_struct *task);
 struct task_struct *s_pop(void);
 int is_stack_empty(void);
-
+void free_stack(void);
 #endif

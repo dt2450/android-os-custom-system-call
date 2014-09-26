@@ -8,7 +8,7 @@ struct list_head *head_ptr = NULL;
 
 int s_init(void)
 {
-	printk("\nIn s_init: initializing stack pointer\n");
+	//printk("\nIn s_init: initializing stack pointer\n");
         if (head_ptr == NULL) {
                 INIT_LIST_HEAD(&head);
                 head_ptr = &head;
@@ -28,7 +28,7 @@ int s_push(struct task_struct *task)
 		s_init();
 	}
 	
-	printk("Current count:%d\n", s_count);
+	//printk("Current count:%d\n", s_count);
         node = (struct stack_node *) kmalloc(sizeof(struct stack_node), GFP_KERNEL);
         node->task_ptr = task;
         list_add(&node->list, head_ptr);
@@ -42,16 +42,16 @@ struct task_struct *s_pop(void)
 {
 	struct stack_node *node = NULL;
 	struct task_struct *task_ptr = NULL;
-        printk("\nIn s_pop:\n");
+        //printk("\nIn s_pop:\n");
         if (s_count == 0) {
-                printk("Current count is %d\n", s_count);
+                //printk("Current count is %d\n", s_count);
                 if (head_ptr != &head)
                         printk("but head_ptr doesnt point to head!!!!");
 		printk("No popping\n");
                 return NULL;
         }
 
-	printk("Current count is %d\n", s_count);
+	//printk("Current count is %d\n", s_count);
         node = list_entry(head_ptr, struct stack_node, list);
 	task_ptr = node->task_ptr;
 
@@ -67,4 +67,8 @@ struct task_struct *s_pop(void)
 int is_stack_empty(void)
 {
 	return (s_count == 0);
+}
+
+void free_stack(void)
+{
 }
