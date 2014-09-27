@@ -29,10 +29,8 @@ int validate_input(int argc, char **argv)
 		printf("usage: cmd <nr> <buf_sz>\n");
 		return -1;
 	}
-	printf("argc=%d\n", argc);
 	nr = atoi(argv[1]);
 	buf_sz = atoi(argv[2]);
-	printf("After atoi, nr=%d, buf_sz=%d\n", nr, buf_sz);
 	if (nr < 0 || buf_sz < 0) {
 		printf("Invalid args\n");
 		printf("usage: cmd <nr> <buf_sz>\n");
@@ -48,9 +46,6 @@ int main(int argc, char **argv)
 	if (returnValue == -1)
 		return returnValue;
 	int len = (int) sizeof(struct prinfo);
-
-	printf("structure len = %d\n", len);
-
 	struct prinfo *buf = NULL;
 
 	if (buf_sz > 0)
@@ -62,7 +57,6 @@ int main(int argc, char **argv)
 		printf("the error is : %s\n", strerror(errno));
 		return -1;
 	}
-	printf(" Return value = %d\n", r);
 
 	if (r > nr)
 		r = nr;
