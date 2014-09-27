@@ -111,7 +111,10 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		pr_err("ptree: buf or nr is NULL\n");
 		return -EINVAL;
 	}
-
+	if (!access_ok(VERIFY_READ, (void *)nr,	sizeof(int))) {
+		pr_err("ptree: nr is not a valid pointer\n");
+		return -EFAULT;
+	}
 	if (copy_from_user(&size, nr, sizeof(int))) {
 		pr_err("ptree: copy_from_user failed to copy nr\n");
 		return -EFAULT;
