@@ -8,53 +8,13 @@
 #include <linux/prinfo.h>
 #include <linux/prinfo_stack.h>
 
-/* dummy functions */
 /*
-static int s_count = 0;
-
-
-int s_push_dummy(struct task_struct *task)
-{
-	s_count++;
-	return 1;
-}
-
-struct task_struct *s_pop_dummy(void)
-{
-	struct task_struct *tp[3] = {&init_task, NULL, current};
-	static int index = 0;
-	tp[1] = find_task_by_pid_ns(1, &init_pid_ns);
-	if (tp[1] == NULL) {
-		pr_err("ptree: couldn't find the task struct for init process\n");
-		return NULL;
-		//return -ESRCH;
-	}
-	if (index > 2) {
-		index = 0;
-		s_count = 0;
-	}
-	pr_info("index = %d\n", index);
-	return tp[index++];
-}
-
-int is_stack_empty_dummy(void)
-{
-	static int test = 0;
-	if (test >= 4) {
-		test = 0;
-		return true;
-	}
-	test++;
-	return false;
-}
-
-void free_stack_dummy(void)
-{
-	return;
-}
+* fn to process each taask_struct entry
+* found while traversing the process-tree.
+* The relevant fields are copied to the
+* prinfo structure.
 */
 
-//actual functions
 void process_task(struct prinfo *output_struct,
 		struct task_struct *input_struct)
 {
@@ -66,6 +26,10 @@ void process_task(struct prinfo *output_struct,
 	/* if the task_struct is for a thread, ignore it */
 	if (!thread_group_leader(p))
 		return;
+
+	/*If real_parent is NULL, we set parent_pid=0.
+	* We're considering real_parent as it always points
+	* to the actual parent, even in case of threads.*/
 	if (p->real_parent)
 		out_prinfo->parent_pid = p->real_parent->pid;
 	else
@@ -78,76 +42,56 @@ void process_task(struct prinfo *output_struct,
 		 */
 		temp = list_entry(p->children.prev,
 				struct task_struct, sibling);
-		if (temp && (temp->pid != p->pid)) {
-			printk("Came here 1 temp->pid=%d\n", temp->pid);
+		if (temp && (temp->pid != p->pid))
 			out_prinfo->first_child_pid = temp->pid;
-		} else {
-			printk("Came here 2\n");
+		else
 			out_prinfo->first_child_pid = 0;
-		}
-	} else {
-		printk("Came here 3\n");
+	} else
 		out_prinfo->first_child_pid = 0;
-	}
+
 	if (!list_empty(&p->sibling)) {
+
+		/*First get the sibling task_truct*/
 		temp = list_entry(p->sibling.prev, struct task_struct,
 				children);
+
+		/*Then get the parent task_struct using its pid*/
 		parent_ts =
 			pid_task(find_get_pid(p->real_parent->pid),
 					PIDTYPE_PID);
-			//find_task_by_pid_ns(p->real_parent->pid,
-			//	&init_pid_ns))
+
 		if (temp && temp != parent_ts) {
 			/* list is not empty and next node doesn't point
-			 * to the children node of parent. 
-			 * i.e there IS a sibling
-			 */
-			/* take the oldest sibling which 
-			 * will be the first node in the list
-			 */
+			* to the children node of parent.
+			* i.e there IS a sibling
+			*/
+			/* take the oldest sibling which
+			* will be the first node in the list
+			*/
 			temp = list_entry(p->sibling.prev, struct task_struct,
 					sibling);
-			if (temp) {
-				printk("Came here 4 temp->pid=%d\n", temp->pid);
+			if (temp)
 				out_prinfo->next_sibling_pid = temp->pid;
-			} else {
-				printk("Came here 5\n");
+			else
 				out_prinfo->next_sibling_pid = 0;
-			}
-		} else {
-			printk("Came here 6\n");
+		} else
 			out_prinfo->next_sibling_pid = 0;
-		}
-	} else {
-		printk("Came here 7\n");
-		out_prinfo->next_sibling_pid = 0;
-	}
-	out_prinfo->state = p->state;
-	if (p->cred) {
-		out_prinfo->uid = p->cred->uid;
 	} else
+		out_prinfo->next_sibling_pid = 0;
+
+	/* get the state */
+	out_prinfo->state = p->state;
+
+	/* get user's id from cred field*/
+	if (p->cred)
+		out_prinfo->uid = p->cred->uid;
+	else
 		out_prinfo->uid = 0;
 	/* the size of the array in task_struct is 16 bytes
 	 * so it will always fit in the the prinfo->comm array
 	 */
 	strncpy(out_prinfo->comm, p->comm, TASK_COMM_LEN);
 	out_prinfo->comm[TASK_COMM_LEN] = '\0';
-
-	//for debugging
-	pr_info("Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d",
-			out_prinfo->parent_pid, out_prinfo->pid,
-			out_prinfo->first_child_pid,
-			out_prinfo->next_sibling_pid);
-	pr_info(" state: %lu, uid: %lu, pname: %s\n",
-			out_prinfo->state,
-			out_prinfo->uid, out_prinfo->comm);
-	pr_info(" MAX PROCESSES = %d\n", pid_max);
-	/*pr_info(
-	  "out_prinfo Values are: ppid: %d pid: %d child_pid: %d sibling_pid: %d\n",
-	  out_prinfo->parent_pid, out_ptree->pid,
-	  out_prinfo->first_child_pid,
-	  out_prinfo->next_sibling_pid);
-	 */
 }
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
@@ -155,12 +99,10 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	int size = 0;
 	struct prinfo *kernel_buffer = NULL;
 	struct prinfo *curr_prinfo = NULL;
-	//init_task is pointing to swapper not init
-	//struct task_struct *p = &init_task;
+	/*init_task is pointing to swapper not init*/
 	struct task_struct *ts_ptr = NULL;
 	struct list_head *list = NULL;
 	struct task_struct *ts_child = NULL;
-	//for debugging
 	int prinfo_count = 0;
 	int process_count = 0;
 	int ret_val = -1;
@@ -169,68 +111,59 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		pr_err("ptree: buf or nr is NULL\n");
 		return -EINVAL;
 	}
-	//tp[1] = find_task_by_pid_ns(1, &init_pid_ns);
-	/*if (tp[1] == NULL) {
-		pr_err("ptree: couldn't find the task struct for init process\n");
-		return -ESRCH;
-	}*/
-	/* TODO: Is access_ok required? */
-	if (!access_ok(VERIFY_READ, (void *)nr, sizeof(int))) {
-		pr_err("ptree: nr is not a valid pointer\n");
+
+	if (copy_from_user(&size, nr, sizeof(int))) {
+		pr_err("ptree: copy_from_user failed to copy nr\n");
 		return -EFAULT;
-	} else {
-		if (copy_from_user(&size, nr, sizeof(int))) {
-			pr_err("ptree: copy_from_user failed to copy nr\n");
-			return -EFAULT;
-		}
 	}
+
 	if (size < 1) {
 		pr_err("ptree: no. of entries is less than 1\n");
 		return -EINVAL;
 	}
+
+	/*validating here since we can't wait for copy_to_user to detect
+	it neaar the end*/
 	if (!access_ok(VERIFY_WRITE, (void *)buf,
 				sizeof(struct prinfo) * size)) {
 		pr_err("ptree: buf is not a valid buffer\n");
 		return -EFAULT;
 	}
 
-	kernel_buffer = (struct prinfo *)kcalloc(size, sizeof(struct prinfo),
+	kernel_buffer = kcalloc(size, sizeof(struct prinfo),
 						GFP_KERNEL);
-	if (!kernel_buffer) {
-		pr_err("ptree: couldn't allocate memory\n");
+	if (!kernel_buffer)
 		return -ENOMEM;
-	}
 
 	curr_prinfo = kernel_buffer;
 
-	//for debugging
-	pr_info("ptree: size = %d, buf = %x kernel_buffer = %x\n", size,
-			(unsigned int)buf,
-			(unsigned int)kernel_buffer);
 	/* initialize the stack with max no. of processes
 	 * that can be on the system
 	 */
 	ret_val = s_init(pid_max+1);
-	if(ret_val) {
-		pr_info("ptree: emptying expected empty stack. maybe an error\n");
+	if (ret_val) {
+		pr_err("ptree: stack initialization failed.\n");
 		kfree(kernel_buffer);
 		return ret_val;
 	}
+
+	/*get the read lock*/
 	read_lock(&tasklist_lock);
+
 	/* start with swapper process which is the first process in Linux */
 	ret_val = s_push(&init_task);
-	if(ret_val) {
+	if (ret_val) {
 		pr_err("ptree: error in pushing to stack\n");
 		read_unlock(&tasklist_lock);
 		s_pop_all();
 		kfree(kernel_buffer);
 		return ret_val;
 	}
+
 	/* perform the DFS search in this loop */
-	while(!is_stack_empty()) {
-		pr_info("Coming here\n");
+	while (!is_stack_empty()) {
 		ts_ptr = s_pop();
-		if(ts_ptr == NULL) {
+		if (ts_ptr == NULL) {
 			pr_err("ptree: error in popping from stack\n");
 			read_unlock(&tasklist_lock);
 			s_pop_all();
@@ -238,9 +171,9 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			return -EFAULT;
 		}
 		if (prinfo_count < size) {
-			/* handle the condition when size is larger 
-			 * than the actual no. of processes
-			 */
+			/* handle the condition when size is larger
+			* than the actual no. of processes
+			*/
 			process_task(curr_prinfo, ts_ptr);
 			curr_prinfo++;
 			prinfo_count++;
@@ -250,7 +183,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		list_for_each_prev(list, &ts_ptr->children) {
 			ts_child = list_entry(list, struct task_struct,
 					sibling);
-			if(ts_child == NULL) {
+			if (ts_child == NULL) {
 				pr_err("ptree: error in traversing siblings");
 				pr_err(" of process pid: %d\n", ts_ptr->pid);
 				read_unlock(&tasklist_lock);
@@ -259,7 +192,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 				return -EFAULT;
 			}
 			ret_val = s_push(ts_child);
-			if(ret_val) {
+			if (ret_val) {
 				pr_err("ptree: error in pushing to stack\n");
 				read_unlock(&tasklist_lock);
 				s_pop_all();
@@ -270,23 +203,16 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		}
 		process_count++;
 	}
+
+	/* release the lock */
 	read_unlock(&tasklist_lock);
 
-	//for debugging
-	pr_info("2. ptree: size = %d, buf = %x kernel_buffer = %x\n", size,
-			(unsigned int)buf,
-			(unsigned int)kernel_buffer);
-	pr_info("proc count= %d prinfo_count = %d\n", process_count,
-			prinfo_count);
 	if (copy_to_user(buf, kernel_buffer, (sizeof(struct prinfo) * size))) {
 		pr_err("ptree: copy_to_user failed to copy kernel_buffer\n");
 		kfree(kernel_buffer);
 		return -EFAULT;
 	}
-	//for debugging
-	pr_info("3. ptree: size = %d, buf = %x kernel_buffer = %x\n", size,
-			(unsigned int)buf,
-			(unsigned int)kernel_buffer);
 	kfree(kernel_buffer);
+
 	return process_count;
 }
