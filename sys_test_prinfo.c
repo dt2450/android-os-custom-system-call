@@ -5,7 +5,10 @@
 #include <sys/syscall.h>
 #include <errno.h>
 
+
 #define __NR_ptree	223
+
+int nr, buf_sz;
 
 struct prinfo {
         pid_t parent_pid;               /* process id of parent */
@@ -18,22 +21,43 @@ struct prinfo {
 };
 
 
-int main()
+
+void validate_input(int argc, char **argv)
 {
-	printf("Hi.\n");
+	if (argc != 3) {
+		printf ("Incorrect no. of args\n");
+		printf ("usage: cmd <nr> <buf_sz>");
+		exit(-1);
+	}
+	
+	printf("argc=%d\n", argc);
+	nr = atoi(argv[1]);
+	buf_sz = atoi(argv[2]);
+	printf("After atoi, nr=%d, buf_sz=%d\n", nr, buf_sz);
+	if (nr < 0 || buf_sz < 0) {
+		printf ("Invalid args\n");
+                printf ("usage: cmd <nr> <buf_sz>");
+		exit(-1);
+	}
+}
+
+int main(int argc, char **argv)
+{
+	validate_input(argc, argv);
 
 	int len = (int) sizeof(struct prinfo);
-	printf("len=%d\n", len);
+	printf("structure len = %d\n", len);
 
-	struct prinfo *pp = (struct prinfo *) malloc(len);
-	int nr = 1;
+	struct prinfo *pp = (struct prinfo *) malloc(len * buf_sz);
 
 	int r = syscall(__NR_ptree, pp, &nr);
 	
 	if (r == -1) {
 		/*err no should be set and we can print error message*/
-		printf("the error is : %s",strerror(errno));
+		printf("the error is : %s", strerror(errno));
+		exit(-1);
 	}
+	
 	int *p = malloc(sizeof(int) * len * 2);
 	int i,j;
 	*p = pp->pid;
