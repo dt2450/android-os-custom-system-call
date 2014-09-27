@@ -247,7 +247,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		}
 		list = NULL;
 		ts_child = NULL;
-		list_for_each(list, &ts_ptr->children) {
+		list_for_each_prev(list, &ts_ptr->children) {
 			ts_child = list_entry(list, struct task_struct,
 					sibling);
 			if(ts_child == NULL) {
