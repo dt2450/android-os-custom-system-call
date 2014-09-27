@@ -7,7 +7,7 @@ TARGET = test_prinfo
 #SOURCES = mysrc1.c \
           mysrc2.c
 
-SOURCES = test_prinfo.c
+SOURCES = sys_test_prinfo.c
 # -----------------------------------------------
 # 
 # Don't touch things below here unless
