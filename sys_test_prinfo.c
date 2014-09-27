@@ -113,6 +113,9 @@ int main(int argc, char **argv)
 		}
 	}
 	
-			
+	free (p);
+	if(buf!=NULL)
+		free(buf);				
+
 	return 0;
 }
