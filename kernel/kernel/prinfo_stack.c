@@ -7,6 +7,11 @@ static int s_index = -1;
 static int s_max_count;
 static struct task_struct **tasks;
 
+/*
+* fn to initialize stack by fixing its size
+* and allocating memory equivalent to it.
+*/
+
 int s_init(int max)
 {
 	if (max <= 0) {
@@ -24,6 +29,11 @@ int s_init(int max)
 	s_max_count = max;
 	return 0;
 }
+
+/*
+* fn to push a task_struct entry onto
+* the stack
+*/
 
 int s_push(struct task_struct *task)
 {
@@ -44,6 +54,9 @@ int s_push(struct task_struct *task)
 	return 0;
 }
 
+/*
+* fn to pop a task_struct entry from the stack
+*/
 struct task_struct *s_pop(void)
 {
 	struct task_struct *temp = NULL;
@@ -65,11 +78,17 @@ struct task_struct *s_pop(void)
 	return temp;
 }
 
+/*
+* fn to check if the stack is empty
+*/
 int is_stack_empty(void)
 {
 	return (s_count == 0);
 }
 
+/*
+* fn to free the stack
+*/
 void s_pop_all(void)
 {
 	kfree(tasks);
