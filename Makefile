@@ -1,5 +1,5 @@
 # Set this to the name of your program
-TARGET = test_prinfo
+TARGET = sys_test_prinfo
 
 # Edit this variable to point to all
 # of your sources files (make sure
