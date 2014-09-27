@@ -1,3 +1,42 @@
+Operating Systems - HW2 (Team 8)
+=======================
+
+unis: dd2450, lfc2128, pp2485
+
+Files:
+======
+sys_test_prinfo.c - for testing the system call and printing the process tree with correct indentation
+Makefile - used for building the system call test code
+
+System Test Call usage:
+======================
+./sys_test_prinfo <nr> <buf_size>
+
+Test Cases:
+==========
+1. ./sys_test_prinfo 1 0
+output - Invalid argument (EINVAL)
+
+2. ./sys_test_prinfo 10 5
+output - test process gets an abort signal while trying to perform a malloc just after system call returns
+
+3. ./sys_test_prinfo 6 10
+output - test process prints the process tree with 6 processes in it  
+
+4. ./sys_test_prinfo 10 10
+output - test process prints the process tree with 10  processes in it  
+
+5. ./sys_test_prinfo 100 100
+otuput - test process prints the process tree with 58 processes in it - this happens since there are only 58 running 
+	processes
+
 References:
+==========
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
 2. http://stackoverflow.com/questions/9305992/linux-threads-and-process
+
+Notes
+=====
+1. Although DFS doesnt specify the order in which siblings have to be printed,
+   we are printing the younger sibling first.
+
