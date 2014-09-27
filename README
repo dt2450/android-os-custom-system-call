@@ -1,5 +1,5 @@
 Operating Systems - HW2 (Team 8)
-=======================
+================================
 
 unis: dd2450, lfc2128, pp2485
 
@@ -30,6 +30,13 @@ output - test process prints the process tree with 10  processes in it
 otuput - test process prints the process tree with 58 processes in it - this happens since there are only 58 running 
 	processes
 
+Manual Test Cases:
+1. 0x70000 address was passed as the buffer address to the system call and copy to user returned EFAULT
+   - this implies that copy to user validates that the address is a user space address and not a kernel space address.
+2. We created a hierarchy of processes using multiple forks and validated that the first child pid is the pid of the youngest,
+   that is the largest pid of all the children, and the next sibling pid is the pid of the oldest sibling i.e. the least pid of 
+   all the siblings 
+
 References:
 ==========
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
@@ -39,4 +46,4 @@ Notes
 =====
 1. Although DFS doesnt specify the order in which siblings have to be printed,
    we are printing the younger sibling first.
-
+2. If the process is the oldest sibling then its next sibling pid will be zero since it points to the parent.
