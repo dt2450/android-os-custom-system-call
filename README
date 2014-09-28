@@ -10,14 +10,14 @@ UNI's:
 ==========
   Files:
 ==========
-- kernel/arch/arm/kernel/calls.S
-- kernel/arch/arm/include/asm/unistd.h
+- kernel/arch/arm/kernel/calls.S - syscall entry for 'ptree'.
+- kernel/arch/arm/include/asm/unistd.h - defining the syscall number (223) for 'ptree'.
 
-- kernel/include/linux/prinfo.h
-- kernel/include/linux/prinfo_stack.h
-- kernel/kernel/prinfo.c
-- kernel/kernel/prinfo_stack.c
-- kernel/kernel/Makefile
+- kernel/include/linux/prinfo.h - declaration of 'prinfo' structure.
+- kernel/include/linux/prinfo_stack.h - interface for the stack operaations.
+- kernel/kernel/prinfo.c - implementation of the 'ptree' syscall.
+- kernel/kernel/prinfo_stack.c - implementation all the stack operations.
+- kernel/kernel/Makefile - inclusion of the new C files added.
 
 - sys_test_prinfo.c - for testing the system call and printing the process tree with correct indentation.
 - test_prinfo.c - some additional test-cases.
