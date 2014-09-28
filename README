@@ -78,7 +78,10 @@ The binary for this process is /system/bin/app_process. It's started as a servic
 c, we can give any name we want to the child process.
 
 
- iii)
+iii)
+There could be following reasons why an embedded device would choose to use a process like zygote:
+a) Such devices have less CPU power, and initializing a Dalvik VM for every applicatiom could be very resource-consuming. Forking an already-initialized VM would be a better solution.
+b) The speedup is achieved by one more factor, which is to NOT copy the shared libraries by using zygote. In this case all core libraries can exist in one place as long as they're read-only.
 
 
 ===============
