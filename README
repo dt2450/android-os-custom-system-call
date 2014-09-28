@@ -69,6 +69,7 @@ Manual Test Cases:
 
 (c)
  i)
+The applications in Android require an instance of Dalvik VM (which is a PROCESS VM) to run. It is similar to how a java process VM is required by a normal java program in order to execute. The zygote process starts gets initialized at the very start and has linkages to all required libraries. The zygote then listens on a socket for commands from components which might want to create a new application. On receiving such a request, the zygote forks, and the new application gets an 'anready-initialized' instance of Dalvik VM to run. This results in speed-up.
 
 ii)
 The binary called 'zygote' doesn't exist.
@@ -85,7 +86,7 @@ c, we can give any name we want to the child process.
 ===============
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
 2. http://stackoverflow.com/questions/9305992/linux-threads-and-process
-
+3. http://coltf.blogspot.com/p/android-os-processes-and-zygote.html
 
 =========
   Notes
