@@ -48,13 +48,18 @@ int main(int argc, char **argv)
 	int len = (int) sizeof(struct prinfo);
 	struct prinfo *buf = NULL;
 
-	if (buf_sz > 0)
+	if (buf_sz > 0) {
 		buf = (struct prinfo *) malloc(len * buf_sz);
+		if (buf == NULL) {
+			printf("error: insufficient memory for malloc\n");
+			return -1;
+		}
+	}
 
 	int r = syscall(__NR_ptree, buf, &nr);
 
 	if (r == -1) {
-		printf("the error is : %s\n", strerror(errno));
+		printf("error : %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -62,6 +67,11 @@ int main(int argc, char **argv)
 		r = nr;
 
 	int *p = malloc(sizeof(int) * r * 2);
+
+	if (p == NULL) {
+		printf("error: insufficient memory for malloc\n");
+		return -1;
+	}
 	int i, j;
 
 	*p = buf->pid;
