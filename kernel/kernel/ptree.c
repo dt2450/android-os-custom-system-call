@@ -56,9 +56,7 @@ void process_task(struct prinfo *output_struct,
 				children);
 
 		/*Then get the parent task_struct using its pid*/
-		parent_ts =
-			pid_task(find_get_pid(p->real_parent->pid),
-					PIDTYPE_PID);
+		parent_ts = p->real_parent;
 
 		if (temp && temp != parent_ts) {
 			/* list is not empty and next node doesn't point
