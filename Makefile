@@ -1,5 +1,5 @@
 # Set this to the name of your program
-TARGET = sys_test_prinfo
+TARGET = prinfo
 
 # Edit this variable to point to all
 # of your sources files (make sure
@@ -7,7 +7,7 @@ TARGET = sys_test_prinfo
 #SOURCES = mysrc1.c \
           mysrc2.c
 
-SOURCES = sys_test_prinfo.c
+SOURCES = prinfo.c
 # -----------------------------------------------
 # 
 # Don't touch things below here unless

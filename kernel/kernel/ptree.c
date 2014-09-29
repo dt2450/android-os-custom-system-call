@@ -5,8 +5,8 @@
 #include <linux/sched.h>
 #include <linux/string.h>
 
-#include <linux/prinfo.h>
-#include <linux/prinfo_stack.h>
+#include <linux/ptree.h>
+#include <linux/ptree_stack.h>
 
 /*
 * fn to process each taask_struct entry
@@ -38,8 +38,8 @@ void process_task(struct prinfo *output_struct,
 
 	if (!list_empty(&p->children)) {
 		/* take the most recent child which will be at the
-		 * tail of the list
-		 */
+		* tail of the list
+		*/
 		temp = list_entry(p->children.prev,
 				struct task_struct, sibling);
 		if (temp && (temp->pid != p->pid))
@@ -88,8 +88,8 @@ void process_task(struct prinfo *output_struct,
 	else
 		out_prinfo->uid = 0;
 	/* the size of the array in task_struct is 16 bytes
-	 * so it will always fit in the the prinfo->comm array
-	 */
+	* so it will always fit in the the prinfo->comm array
+	*/
 	strncpy(out_prinfo->comm, p->comm, TASK_COMM_LEN);
 	out_prinfo->comm[TASK_COMM_LEN] = '\0';
 }
@@ -141,8 +141,8 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	curr_prinfo = kernel_buffer;
 
 	/* initialize the stack with max no. of processes
-	 * that can be on the system
-	 */
+	* that can be on the system
+	*/
 	ret_val = s_init(pid_max+1);
 	if (ret_val) {
 		pr_err("ptree: stack initialization failed.\n");
