@@ -68,7 +68,7 @@ The following are the fields in the prinfo struct and the reasons why they might
 2. pid - this will change when the process is run again. This happens as there are many processes running and the kernel assigns the next available process id to the newly created process.
 3. first_child_pid - pid of the most recent child created else set to 0, this will change only if the parent process keeps creating a new child process every now and then. This could be the case of the zygote process
 4. next_sibling_id - pid if the next sibling at the current level. This value is different for each process, since the has the id of the next sibling, but will not change over time unless a sibling was terminated and a new one created
-5. state - this indicates the state of process and should be 1 which is TASK_INTERRUPTIBLE except swapper which has state 0 which translates to TASK_RUNNING . The process will have TASK_INTERRUPTIBLE since it is currently in the process tree. 
+5. state - this indicates the state of process and should be 1 which is TASK_INTERRUPTIBLE, except swapper and currently running test process which have state 0 which translates to TASK_RUNNING . The other processes will show TASK_INTERRUPTIBLE since the test process is executing a system call.
 6. uid - this is the id of the user/program that is running the program, unless we login with a different unix user this will not change
 7 comm - this will not cange as this is the name of the running program, if the program is renamed then this field is changed.
 
