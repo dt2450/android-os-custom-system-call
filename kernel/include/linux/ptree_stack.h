@@ -1,5 +1,5 @@
-#ifndef __LINUX_PRINFO_STACK_H
-#define __LINUX_PRINFO_STACK_H
+#ifndef __LINUX_PTREE_STACK_H
+#define __LINUX_PTREE_STACK_H
 
 #include <linux/unistd.h>
 #include <linux/linkage.h>
@@ -12,4 +12,4 @@ struct task_struct *s_pop(void);
 int is_stack_empty(void);
 void s_pop_all(void);
 
-#endif
+#endif /* __LINUX_PTREE_STACK_H */

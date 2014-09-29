@@ -1,32 +1,52 @@
-Operating Systems - HW2 (Team 8)
-================================
+====================================
+  Operating Systems - HW2 (Team 8)
+====================================
 
-unis: dd2450, lfc2128, pp2485
+UNI's:
+- dt2450 (Devashi Tandon)
+- lfc2128 (Lawrence Candes)
+- pp2485 (Pratyush Parimal)
 
-Files:
-======
-sys_test_prinfo.c - for testing the system call and printing the process tree with correct indentation
-Makefile - used for building the system call test code
-
-System Test Call usage:
-======================
-./sys_test_prinfo <nr> <buf_size>
-
-Test Cases:
 ==========
-1. ./sys_test_prinfo 1 0
+  Files:
+==========
+- kernel/arch/arm/kernel/calls.S - syscall entry for 'ptree'.
+- kernel/arch/arm/include/asm/unistd.h - defining the syscall number (223) for 'ptree'.
+
+- kernel/include/linux/ptree.h - declaration of 'prinfo' structure.
+- kernel/include/linux/ptree_stack.h - interface for the stack operaations.
+- kernel/kernel/ptree.c - implementation of the 'ptree' syscall.
+- kernel/kernel/ptree_stack.c - implementation all the stack operations.
+- kernel/kernel/Makefile - inclusion of the new C files added.
+
+- prinfo.c - for testing the system call and printing the process tree with correct indentation.
+- test_prinfo.c - some additional test-cases.
+- Makefile - used for building the system call test code.
+
+
+===========================
+  System Test Call usage:
+===========================
+./prinfo <nr> <buf_size>
+
+
+===============
+  Test Cases:
+===============
+
+1. ./prinfo 1 0
 output - Invalid argument (EINVAL)
 
-2. ./sys_test_prinfo 10 5
+2. ./prinfo 10 5
 output - test process gets an abort signal while trying to perform a malloc just after system call returns
 
-3. ./sys_test_prinfo 6 10
+3. ./prinfo 6 10
 output - test process prints the process tree with 6 processes in it  
 
-4. ./sys_test_prinfo 10 10
+4. ./prinfo 10 10
 output - test process prints the process tree with 10  processes in it  
 
-5. ./sys_test_prinfo 100 100
+5. ./prinfo 100 100
 otuput - test process prints the process tree with 58 processes in it - this happens since there are only 58 running 
 	processes
 
@@ -37,13 +57,44 @@ Manual Test Cases:
    that is the largest pid of all the children, and the next sibling pid is the pid of the oldest sibling i.e. the least pid of 
    all the siblings 
 
-References:
-==========
+=============
+  Problem 4
+=============
+
+(a)
+
+
+(b)
+
+
+(c)
+ i)
+The applications in Android require an instance of Dalvik VM (which is a PROCESS VM) to run. It is similar to how a java process VM is required by a normal java program in order to execute. The zygote process starts gets initialized at the very start and has linkages to all required libraries. The zygote then listens on a socket for commands from components which might want to create a new application. On receiving such a request, the zygote forks, and the new application gets an 'anready-initialized' instance of Dalvik VM to run. This results in speed-up.
+
+ii)
+The binary called 'zygote' doesn't exist.
+
+The binary for this process is /system/bin/app_process. It's started as a service ininit.rc in the following way: 'service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server'. So it starts with the name 'zygote'. As we know, when we call exe
+c, we can give any name we want to the child process.
+
+
+iii)
+There could be following reasons why an embedded device would choose to use a process like zygote:
+a) Such devices have less CPU power, and initializing a Dalvik VM for every applicatiom could be very resource-consuming. Forking an already-initialized VM would be a better solution.
+b) The speedup is achieved by one more factor, which is to NOT copy the shared libraries by using zygote. In this case all core libraries can exist in one place as long as they're read-only.
+
+
+===============
+  References:
+===============
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
 2. http://stackoverflow.com/questions/9305992/linux-threads-and-process
+3. http://coltf.blogspot.com/p/android-os-processes-and-zygote.html
 
-Notes
-=====
+=========
+  Notes
+=========
+
 1. Although DFS doesnt specify the order in which siblings have to be printed,
    we are printing the younger sibling first.
 2. If the process is the oldest sibling then its next sibling pid will be zero since it points to the parent.
