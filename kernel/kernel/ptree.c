@@ -5,7 +5,7 @@
 #include <linux/sched.h>
 #include <linux/string.h>
 
-#include <linux/ptree.h>
+#include <linux/prinfo.h>
 #include <linux/ptree_stack.h>
 
 /*

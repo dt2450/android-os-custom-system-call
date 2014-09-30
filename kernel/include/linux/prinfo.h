@@ -1,5 +1,5 @@
-#ifndef __LINUX_PTREE_H
-#define __LINUX_PTREE_H
+#ifndef __LINUX_PRINFO_H
+#define __LINUX_PRINFO_H
 
 #include <linux/unistd.h>
 #include <linux/linkage.h>
@@ -16,4 +16,4 @@ struct prinfo {
 	char comm[64];			/* name of program executed */
 };
 
-#endif /* __LINUX_PTREE_H */
+#endif /* __LINUX_PRINFO_H */

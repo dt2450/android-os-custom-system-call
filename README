@@ -13,7 +13,7 @@ UNI's:
 - kernel/arch/arm/kernel/calls.S - syscall entry for 'ptree'.
 - kernel/arch/arm/include/asm/unistd.h - defining the syscall number (223) for 'ptree'.
 
-- kernel/include/linux/ptree.h - declaration of 'prinfo' structure.
+- kernel/include/linux/prinfo.h - declaration of 'prinfo' structure.
 - kernel/include/linux/ptree_stack.h - interface for the stack operaations.
 - kernel/kernel/ptree.c - implementation of the 'ptree' syscall.
 - kernel/kernel/ptree_stack.c - implementation all the stack operations.
