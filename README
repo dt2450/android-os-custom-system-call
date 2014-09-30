@@ -75,7 +75,7 @@ The following are the fields in the prinfo struct and the reasons why they might
 (b)
 After starting the mobile web-browser just one new process is started.
 The parent process of android.browser is zygote. 
-After using the home button to close the browser and re-running the test program no processes are removed from the process tree and a kworker process is started.
+After using the home button to close the browser and re-running the test program no processes are removed from the process tree and we noticed that a kworker process is started, after a little searching we found that a kworker process is just a kernel worker thread
 
 When the home button is pressed android doesn't terminate the running process rather the contents of the screen buffer are changed and the kernel displays the android launcher screen.
 
