@@ -66,16 +66,16 @@ After running the program several times we find that the pid field in the prinfo
 The following are the fields in the prinfo struct and the reasons why they might change:
 1. parent_pid - this will change only if the parent process that is creating the child changes. for example - prinfo is run from a shell and then we close that shell open a new shell and then run prinfo once more, then prinfo's parent_pid might change
 2. pid - this will change when the process is run again. This happens as there are many processes running and the kernel assigns the next available process id to the newly created process.
-3. first_child_pid - pid of the most recent child created else set to 0, this will change only if the parent process keeps creating a new child process every now and then. This could be the case of the zygote process
-4. next_sibling_id - pid if the next sibling at the current level. This value is different for each process, since the has the id of the next sibling, but will not change over time unless a sibling was terminated and a new one created
+3. first_child_pid - pid of the most recent child created else set to 0, this will change only if the parent process keeps creating a new child process every now and then. This could be the case of the zygote process.
+4. next_sibling_id - pid if the next sibling at the current level. This value is different for each process, since the has the id of the next sibling, but will not change over time unless a sibling was terminated and a new one created.
 5. state - this indicates the state of process and should be 1 which is TASK_INTERRUPTIBLE, except swapper and currently running test process which have state 0 which translates to TASK_RUNNING . The other processes will show TASK_INTERRUPTIBLE since the test process is executing a system call.
-6. uid - this is the id of the user/program that is running the program, unless we login with a different unix user this will not change
-7 comm - this will not cange as this is the name of the running program, if the program is renamed then this field is changed.
+6. uid - this is the id of the user/program that is running the program, unless we login with a different unix user this will not change.
+7. comm - this will not change as this is the name of the running program, if the program is renamed then this field is changed.
 
 (b)
 After starting the mobile web-browser just one new process is started.
 The parent process of android.browser is zygote. 
-After using the home button to close the browser and re-running the test program no processes are removed from the process tree and we noticed that a kworker process is started, after a little searching we found that a kworker process is just a kernel worker thread
+After using the home button to close the browser and re-running the test program no processes are removed from the process tree and we noticed that a kworker process is started, after a little searching we found that a kworker process is just a kernel worker thread.
 
 When the home button is pressed android doesn't terminate the running process rather the contents of the screen buffer are changed and the kernel displays the android launcher screen.
 
