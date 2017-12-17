@@ -1,14 +1,18 @@
 ====================================
-  Operating Systems - HW2 (Team 8)
+  # Operating Systems - HW2 (Team 8)
 ====================================
 
-UNI's:
-- dt2450 (Devashi Tandon)
-- lfc2128 (Lawrence Candes)
-- pp2485 (Pratyush Parimal)
+# Authors:
+- Devashi Tandon
+- Lawrence Candes
+- Pratyush Parimal
+
+======================
+# Problem Statement:
+======================
 
 ==========
-  Files:
+  # Files:
 ==========
 - kernel/arch/arm/kernel/calls.S - syscall entry for 'ptree'.
 - kernel/arch/arm/include/asm/unistd.h - defining the syscall number (223) for 'ptree'.
@@ -25,13 +29,13 @@ UNI's:
 
 
 ===========================
-  System Test Call usage:
+  # System Test Call usage:
 ===========================
 ./prinfo <nr> <buf_size>
 
 
 ===============
-  Test Cases:
+  # Test Cases:
 ===============
 
 1. ./prinfo 1 0
@@ -58,7 +62,7 @@ Manual Test Cases:
    all the siblings 
 
 =============
-  Problem 4
+  # Problem 4
 =============
 
 (a)
@@ -97,14 +101,14 @@ b) The speedup is achieved by one more factor, which is to NOT copy the shared l
 
 
 ===============
-  References:
+ # References:
 ===============
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
 2. http://stackoverflow.com/questions/9305992/linux-threads-and-process
 3. http://coltf.blogspot.com/p/android-os-processes-and-zygote.html
 
 =========
-  Notes
+ # Notes
 =========
 
 1. Although DFS doesnt specify the order in which siblings have to be printed,
