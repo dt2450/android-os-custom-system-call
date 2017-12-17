@@ -1,15 +1,12 @@
-====================================
-  # Operating Systems - HW2 (Team 8)
-====================================
+# Operating Systems - HW2
 
 # Authors:
 - Devashi Tandon
 - Lawrence Candes
 - Pratyush Parimal
 
-==========
-  # Files:
-==========
+# Files:
+
 - kernel/arch/arm/kernel/calls.S - syscall entry for 'ptree'.
 - kernel/arch/arm/include/asm/unistd.h - defining the syscall number (223) for 'ptree'.
 
@@ -23,16 +20,11 @@
 - test_prinfo.c - some additional test-cases.
 - Makefile - used for building the system call test code.
 
+# System Test Call usage:
 
-===========================
-  # System Test Call usage:
-===========================
 ./prinfo <nr> <buf_size>
 
-
-===============
-  # Test Cases:
-===============
+# Test Cases:
 
 1. ./prinfo 1 0
 output - Invalid argument (EINVAL)
@@ -57,9 +49,7 @@ Manual Test Cases:
    that is the largest pid of all the children, and the next sibling pid is the pid of the oldest sibling i.e. the least pid of 
    all the siblings 
 
-=============
-  # Problem 4
-=============
+# Problem 4
 
 (a)
 After running the program several times we find that the pid field in the prinfo structure changes the most. The other fields generally do not change.
@@ -96,16 +86,13 @@ a) Such devices have less CPU power, and initializing a Dalvik VM for every appl
 b) The speedup is achieved by one more factor, which is to NOT copy the shared libraries by using zygote. In this case all core libraries can exist in one place as long as they're read-only.
 
 
-===============
- # References:
-===============
+# References:
+
 1. http://isis.poly.edu/kulesh/stuff/src/klist/
 2. http://stackoverflow.com/questions/9305992/linux-threads-and-process
 3. http://coltf.blogspot.com/p/android-os-processes-and-zygote.html
 
-=========
- # Notes
-=========
+# Notes
 
 1. Although DFS doesnt specify the order in which siblings have to be printed,
    we are printing the younger sibling first.
