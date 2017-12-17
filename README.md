@@ -1,4 +1,4 @@
-# Operating Systems - HW2
+# Operating Systems - Custom System Call in Android Kernel
 
 # Authors:
 - Devashi Tandon
